@@ -66,6 +66,43 @@ DOMNormalizer.isStdEvt = function (evt) {
   return isStd;
 };
 
+/**
+ * Event emitter for DOMNormalizer
+ */
+DOMNormalizer.EventEmitter = {
+  'channels': {},
+  'on': function (channelName, fn) {
+    var channels = this.channels,
+        channel = channels[channelName];
+    if (channel === undefined) {
+      channel = [];
+      channels[channelName] = channel;
+    }
+    channel.push(fn);
+  },
+  'off': function (channelName, fn) {
+    var channels = this.channels,
+        channel = channels[channelName] || [],
+        i = channel.length;
+    while (i--) {
+      if (channel[i] === fn) {
+        channel.splice(i, 1);
+      }
+    }
+  },
+  'trigger': function (channelName) {
+    var channels = this.channels,
+        channel = channels[channelName] || [],
+        i = 0,
+        len = channel.length,
+        args = [].slice.call(arguments, 1),
+        o = {};
+    for (; i < len; i++) {
+      channel[i].apply(o, args);
+    }
+  }
+};
+
 DOMNormalizer.prototype = (function () {
   // Determine what are the available event listener's
   var div = document.createElement('div'),
