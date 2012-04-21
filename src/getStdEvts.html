@@ -41,14 +41,19 @@
           i = 0,
           len = inputEvts.length,
           outputEvts = [],
-          evt;
+          evtName;
         for (; i < len; i++) {
-          evt = inputEvts[i];
+          evtName = inputEvts[i];
+          
           try {
-            $testInput.trigger(evt, function () {});
-            outputEvts.push(evt);
+            if (testInput.dispatchEvent) {
+              $testInput.trigger(evtName);
+            } else if (testInput.fireEvent) {
+              testInput.fireEvent('on' + evtName);
+            }
+            outputEvts.push(evtName);
           } catch (e) {
-            // log(evt, e.message);
+            // log(evtName, e.message);
           }
         }
 

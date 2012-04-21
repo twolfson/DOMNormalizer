@@ -55,6 +55,15 @@ DOMNormalizer.isStdEvt = function (evt) {
       stdEvts = DOMNormalizer.stdEvts,
       i = 0,
       len = stdEvts.length;
+
+  for (; i < len; i++) {
+    if (evt === stdEvts[i]) {
+      isStd = true;
+      break;
+    }
+  }
+
+  return isStd;
 };
 
 DOMNormalizer.prototype = (function () {
@@ -117,13 +126,22 @@ DOMNormalizer.prototype = (function () {
       var event = DOMNormalizer.makeEvent();
       event.initEvent(evtName, true, true);
       this.elt.dispatchEvent(event);
+      // TODO: Check that property events are triggered
     };
   } else if (div.fireEvent) {
   // Otherwise, if there is an fireEvent handler
     // Override triggerHandler
     triggerHandler = function (evtName) {
       var event = DOMNormalizer.makeEvent();
-      this.elt.fireEvent('on' + evtName);
+
+      // If the event is standard, dispatch it normally
+      if (DOMNormalizer.isStd(evtName)) {
+        this.elt.fireEvent('on' + evtName, event);
+      } else {
+      // Otherwise, go to the event emitter
+        DOMNormalizer.EventEmitter.emit(evtName, this.elt, event);
+        // TODO: Also trigger property events
+      }
     };
   }
 
