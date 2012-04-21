@@ -1,0 +1,76 @@
+<html>
+  <head>
+    <title>DOMNormalizer Standard Event Finder</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <style>
+      body {
+        background: linen;
+      }
+
+      #input,
+      #output,
+      #console {
+        border: 1px solid #000;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Events being tested are:</h1>
+    <!-- Attribution to http://msdn.microsoft.com/en-us/library/ms533051.aspx -->
+    <div id="input">
+      ['abort', 'activate', 'afterprint', 'afterupdate', 'beforeactivate', 'beforecopy', 'beforecut', 'beforedeactivate', 'beforeeditfocus', 'beforepaste', 'beforeprint', 'beforeunload', 'beforeupdate', 'blur', 'bounce', 'canplay', 'canplaythrough', 'cellchange', 'change', 'click', 'contextmenu', 'controlselect', 'copy', 'cut', 'dataavailable', 'datasetchanged', 'datasetcomplete', 'dblclick', 'deactivate', 'drag', 'dragend', 'dragenter', 'dragleave', 'dragover', 'dragstart', 'drop', 'durationchange', 'emptied', 'ended', /*'error',*/ 'errorupdate', 'filterchange', 'finish', 'focus', 'focusin', 'focusout', 'hashchange', 'help', 'input', 'keydown', 'keypress', 'keyup', 'layoutcomplete', 'load', 'loadeddata', 'loadedmetadata', 'loadstart', 'losecapture', 'message', 'mousedown', 'mouseenter', 'mouseleave', 'mousemove', 'mouseout', 'mouseover', 'mouseup', 'mousewheel', 'move', 'moveend', 'movestart', 'mssitemodejumplistitemremoved', 'msthumbnailclick', 'offline', 'online', 'page', 'paste', 'pause', 'play', 'playing', 'progress', 'progress', 'propertychange', 'ratechange', 'readystatechange', 'readystatechange', 'reset', 'resize', 'resizeend', 'resizestart', 'rowenter', 'rowexit', 'rowsdelete', 'rowsinserted', 'scroll', 'seeked', 'seeking', 'select', 'selectionchange', 'selectstart', 'stalled', 'start', 'stop', 'storage', 'storagecommit', 'submit', 'suspend', 'timeout', 'timeupdate', 'unload', 'volumechange', 'waiting']
+    </div>
+    <h1>Standard Events supported by this browser are:</h1>
+    <div id="output"></div>
+    <div id="TESTinput"></div>
+    <h1>Debug Console:</h1>
+    <div id="console"></div>
+    <script src="normalizer.js"></script>
+    <script>
+      var debugConsole = document.getElementById('console'),
+          log = function () {
+            var args = [].slice.call(arguments),
+                msg = args.join('&nbsp;&nbsp;');
+            debugConsole.innerHTML += msg + '<br/>';
+          },
+          testInput = document.getElementById('TESTinput'),
+          $testInput = new DOMNormalizer(testInput),
+          inputDiv = document.getElementById('input'),
+          inputStr = inputDiv.innerHTML.replace(/^\s+/, '').replace(/\s+$/, ''),
+          inputEvts = new Function('return ' + inputStr + ';')(),
+          i = 0,
+          len = inputEvts.length,
+          outputEvts = [],
+          evt;
+        for (; i < len; i++) {
+          evt = inputEvts[i];
+          try {
+            $testInput.trigger(evt, function () {});
+            outputEvts.push(evt);
+          } catch (e) {
+            // log(evt, e.message);
+          }
+        }
+
+        var outputDiv = document.getElementById('output'),
+            outputStr = "['" + outputEvts.join("', '") + "']";
+        log('Total supported events:', outputEvts.length);
+        outputDiv.innerHTML = outputStr;
+    </script>
+
+    <script src="https://raw.github.com/twolfson/File-Watcher/master/src/watcher.js"></script>
+    <script src="https://raw.github.com/twolfson/Resource-Collector/master/src/collector.js"></script>
+    <script>
+        (function () {
+          if (location.hostname === 'localhost') {
+             var watcher = new FileWatcher(),
+                 resources = ResourceCollector.collect();
+             watcher.addListener(function () {
+               location.reload();
+             });
+             watcher.watch(resources);
+          }
+        }());
+    </script>
+  </body>
+</html>

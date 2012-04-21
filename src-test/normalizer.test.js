@@ -40,6 +40,29 @@ suite.addBatch({
         $input.trigger('click', function () {});
         assert(true);
       },
+      'can trigger all standard events': function ($input) {
+        // Attribution to http://msdn.microsoft.com/en-us/library/ms533051.aspx
+        var dhtmlEvts = ['abort', 'activate', 'afterprint', 'afterupdate', 'beforeactivate', 'beforecopy', 'beforecut', 'beforedeactivate', 'beforeeditfocus', 'beforepaste', 'beforeprint', 'beforeunload', 'beforeupdate', 'blur', 'bounce', 'canplay', 'canplaythrough', 'cellchange', 'change', 'click', 'contextmenu', 'controlselect', 'copy', 'cut', 'dataavailable', 'datasetchanged', 'datasetcomplete', 'dblclick', 'deactivate', 'drag', 'dragend', 'dragenter', 'dragleave', 'dragover', 'dragstart', 'drop', 'durationchange', 'emptied', 'ended', /*'error',*/ 'errorupdate', 'filterchange', 'finish', 'focus', 'focusin', 'focusout', 'hashchange', 'help', 'input', 'keydown', 'keypress', 'keyup', 'layoutcomplete', 'load', 'loadeddata', 'loadedmetadata', 'loadstart', 'losecapture', 'message', 'mousedown', 'mouseenter', 'mouseleave', 'mousemove', 'mouseout', 'mouseover', 'mouseup', 'mousewheel', 'move', 'moveend', 'movestart', 'mssitemodejumplistitemremoved', 'msthumbnailclick', 'offline', 'online', 'page', 'paste', 'pause', 'play', 'playing', 'progress', 'progress', 'propertychange', 'ratechange', 'readystatechange', 'readystatechange', 'reset', 'resize', 'resizeend', 'resizestart', 'rowenter', 'rowexit', 'rowsdelete', 'rowsinserted', 'scroll', 'seeked', 'seeking', 'select', 'selectionchange', 'selectstart', 'stalled', 'start', 'stop', 'storage', 'storagecommit', 'submit', 'suspend', 'timeout', 'timeupdate', 'unload', 'volumechange', 'waiting'],
+          stdEvts = ['abort', 'activate', 'afterupdate', 'beforeactivate', 'beforecopy', 'beforecut', 'beforedeactivate', 'beforeeditfocus', 'beforepaste', 'beforeupdate', 'blur', 'cellchange', 'change', 'click', 'contextmenu', 'controlselect', 'copy', 'cut', 'dataavailable', 'datasetchanged', 'datasetcomplete', 'dblclick', 'deactivate', 'drag', 'dragend', 'dragenter', 'dragleave', 'dragover', 'dragstart', 'drop', 'errorupdate', 'filterchange', 'focus', 'focusin', 'focusout', 'help', 'keydown', 'keypress', 'keyup', 'layoutcomplete', 'load', 'losecapture', 'mousedown', 'mouseenter', 'mouseleave', 'mousemove', 'mouseout', 'mouseover', 'mouseup', 'mousewheel', 'move', 'moveend', 'movestart', 'page', 'paste', 'propertychange', 'readystatechange', 'readystatechange', 'resize', 'resizeend', 'resizestart', 'rowenter', 'rowexit', 'rowsdelete', 'rowsinserted', 'scroll', 'select', 'selectstart'],
+          i = 0,
+          len = stdEvts.length,
+          goodEvts = [];
+        for (; i < len; i++) {
+          try {
+            $input.trigger(stdEvts[i], function () {});
+            goodEvts.push(stdEvts[i]);
+          } catch (e) {
+            // alert(stdEvts[i]);
+          }
+        }
+
+        len = goodEvts.length;
+        if (len > 0) {
+          var outStr = "['" + goodEvts.join("', '") + "']";
+          document.write(outStr);
+        }
+        assert(true);
+      },
       'can listen to a non-standard event (onwiggle)': function ($input) {
         $input.on('wiggle', function () {});
         assert(true);
@@ -48,7 +71,7 @@ suite.addBatch({
         // 'without throwing errors': ''
       // }
       'can trigger a non-standard event (onwobble)': function ($input) {
-        $input.trigger('wobble', function () {});
+        $input.trigger('wiggle', function () {});
         assert(true);
       }
     }

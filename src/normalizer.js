@@ -14,19 +14,48 @@ function DOMNormalizer(elt) {
  * @param {String} [options.eventType='HTMLEvents'] Type of event to create
  */
 DOMNormalizer.makeEvent = (function () {
-  var createEvent = document.createEvent || document.createEventObject || function () { return null; };
+  var createFn = function () { return {}; };
+
+  if (document.createEvent) {
+    createFn = function (evtType) {
+      return document.createEvent(evtType);
+    };
+  } else if (document.createEventObject) {
+    // Before, we would do a .call on document.createEventObject however IE6 threw a hissy fit
+    createFn = function (evtType) {
+      return document.createEventObject(evtType);
+    };
+  }
+
   return function (options) {
     // Fallback options
     options = options || {};
 
     // Grab the event type and create the event
     var eventType = options.eventType || 'HTMLEvents',
-        event = createEvent.call(document, eventType);
+        event = createFn(eventType);
 
     // Return the created event
     return event;
   };
 }());
+
+/**
+ * Static list of events supported by IE6/7
+ */
+DOMNormalizer.stdEvts = ['activate', 'afterupdate', 'beforeactivate', 'beforecopy', 'beforecut', 'beforedeactivate', 'beforeeditfocus', 'beforepaste', 'beforeupdate', 'blur', 'cellchange', 'click', 'contextmenu', 'controlselect', 'copy', 'cut', 'dataavailable', 'datasetchanged', 'datasetcomplete', 'dblclick', 'deactivate', 'drag', 'dragend', 'dragenter', 'dragleave', 'dragover', 'dragstart', 'drop', 'errorupdate', 'filterchange', 'focus', 'focusin', 'focusout', 'help', 'keydown', 'keypress', 'keyup', 'layoutcomplete', 'losecapture', 'mousedown', 'mouseenter', 'mouseleave', 'mousemove', 'mouseout', 'mouseover', 'mouseup', 'mousewheel', 'move', 'moveend', 'movestart', 'page', 'paste', 'propertychange', 'readystatechange', 'readystatechange', 'resize', 'resizeend', 'resizestart', 'rowenter', 'rowexit', 'rowsdelete', 'rowsinserted', 'scroll', 'selectstart'];
+
+/**
+ * Static method to determine if an event is standard or not
+ * @param {String} evt Name of the event to check on
+ * @returns {Boolean} True if the event is standard, false otherwise
+ */
+DOMNormalizer.isStdEvt = function (evt) {
+  var isStd = false,
+      stdEvts = DOMNormalizer.stdEvts,
+      i = 0,
+      len = stdEvts.length;
+};
 
 DOMNormalizer.prototype = (function () {
   // Determine what are the available event listener's
@@ -94,7 +123,7 @@ DOMNormalizer.prototype = (function () {
     // Override triggerHandler
     triggerHandler = function (evtName) {
       var event = DOMNormalizer.makeEvent();
-      this.elt.fireEvent('on' + evtName, event);
+      this.elt.fireEvent('on' + evtName);
     };
   }
 
