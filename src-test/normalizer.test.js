@@ -76,7 +76,7 @@ suite.addBatch({
 // Third batch: Advanced
 suite.addBatch({
   'Bubbles a standard event properly': '',
-  'Bubbles a non-standard event properly': ''
+  'Bubbles a non-standard event properly': 'TODO'
 });
 
 suite.exportTo('Mocha');

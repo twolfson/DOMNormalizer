@@ -1,4 +1,24 @@
 (function () {
+function strictEquals(a, b) {
+  return a === b;
+}
+function indexOf(arr, item, comparator) {
+  comparator = comparator || strictEquals;
+  var index = -1,
+      i = 0,
+      len = arr.length,
+      arrItem;
+
+  for (; i < len; i++) {
+    if (comparator(item, arr[i])) {
+      index = i;
+      break;
+    }
+  }
+
+  return index;
+}
+
 /**
  * DOM normalizer for event bindings
  * @param {HTMLElement} elt Element to normalize for
@@ -51,56 +71,10 @@ DOMNormalizer.stdEvts = ['activate', 'afterupdate', 'beforeactivate', 'beforecop
  * @returns {Boolean} True if the event is standard, false otherwise
  */
 DOMNormalizer.isStdEvt = function (evt) {
-  var isStd = false,
-      stdEvts = DOMNormalizer.stdEvts,
-      i = 0,
-      len = stdEvts.length;
-
-  for (; i < len; i++) {
-    if (evt === stdEvts[i]) {
-      isStd = true;
-      break;
-    }
-  }
+  var stdEvts = DOMNormalizer.stdEvts,
+      isStd = !!~indexOf(stdEvts, evt);
 
   return isStd;
-};
-
-/**
- * Event emitter for DOMNormalizer
- */
-DOMNormalizer.EventEmitter = {
-  'channels': {},
-  'on': function (channelName, fn) {
-    var channels = this.channels,
-        channel = channels[channelName];
-    if (channel === undefined) {
-      channel = [];
-      channels[channelName] = channel;
-    }
-    channel.push(fn);
-  },
-  'off': function (channelName, fn) {
-    var channels = this.channels,
-        channel = channels[channelName] || [],
-        i = channel.length;
-    while (i--) {
-      if (channel[i] === fn) {
-        channel.splice(i, 1);
-      }
-    }
-  },
-  'trigger': function (channelName) {
-    var channels = this.channels,
-        channel = channels[channelName] || [],
-        i = 0,
-        len = channel.length,
-        args = [].slice.call(arguments, 1),
-        o = {};
-    for (; i < len; i++) {
-      channel[i].apply(o, args);
-    }
-  }
 };
 
 DOMNormalizer.prototype = (function () {
@@ -127,6 +101,10 @@ DOMNormalizer.prototype = (function () {
           method.call(elt, event);
         }
       };
+   
+  function compareEvtObj(a, b) {
+    return (a.name === b.name && a.fn === b.fn);
+  }
 
   // If there is an addEventListener handler
   if (div.addEventListener) {
@@ -138,7 +116,16 @@ DOMNormalizer.prototype = (function () {
   // Otherwise, if there is an attachEvent handler
     // Override onHandler
     onHandler = function (evtName, fn) {
-      this.elt.attachEvent('on' + evtName, fn);
+      if (DOMNormalizer.isStdEvt(evtName)) {
+        this.elt.attachEvent('on' + evtName, fn);
+      } else {
+        var evts = this.elt._events;
+        if (evts === undefined) {
+          evts = [];
+          this.elt._events = evts;
+        }
+        evts.push({'name': evtName, 'fn': fn});
+      }
     };
   }
 
@@ -152,7 +139,15 @@ DOMNormalizer.prototype = (function () {
   // Otherwise, if there is an detachEvent handler
     // Override offHandler
     offHandler = function (evtName, fn) {
-      this.elt.detachEvent('on' + evtName, fn);
+      if (DOMNormalizer.isStdEvt(evtName)) {
+        this.elt.detachEvent('on' + evtName, fn);
+      } else {
+        var evts = this.elt._events || [],
+            index = indexOf(evts, fn, compareEvtObj);
+        if (!!~index) {
+          evts.splice(index, 1);
+        }
+      }
     };
   }
 
@@ -169,15 +164,26 @@ DOMNormalizer.prototype = (function () {
   // Otherwise, if there is an fireEvent handler
     // Override triggerHandler
     triggerHandler = function (evtName) {
-      var event = DOMNormalizer.makeEvent();
+      var elt = this.elt,
+          event = DOMNormalizer.makeEvent();
 
       // If the event is standard, dispatch it normally
-      if (DOMNormalizer.isStd(evtName)) {
-        this.elt.fireEvent('on' + evtName, event);
+      if (DOMNormalizer.isStdEvt(evtName)) {
+        elt.fireEvent('on' + evtName, event);
       } else {
       // Otherwise, go to the event emitter
-        DOMNormalizer.EventEmitter.emit(evtName, this.elt, event);
+        var evts = elt._events || [],
+            i = 0,
+            len = evts.length,
+            evt;
+        for (; i < len; i++) {
+          evt = evts[i];
+          if (evt.name === evtName) {
+            evt.fn.call(elt, event);
+          }
+        }
         // TODO: Also trigger property events
+        // TODO: Also bubble event
       }
     };
   }
