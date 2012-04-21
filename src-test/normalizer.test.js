@@ -37,7 +37,7 @@ suite.addBatch({
         // 'without throwing errors': ''
       // }
       'can trigger a standard event (onclick)': function ($input) {
-        $input.trigger('change', function () {});
+        $input.trigger('click', function () {});
         assert(true);
       },
       'can listen to a non-standard event (onwiggle)': function ($input) {
@@ -48,7 +48,7 @@ suite.addBatch({
         // 'without throwing errors': ''
       // }
       'can trigger a non-standard event (onwobble)': function ($input) {
-        $input.trigger('wiggle', function () {});
+        $input.trigger('wobble', function () {});
         assert(true);
       }
     }

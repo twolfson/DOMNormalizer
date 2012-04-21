@@ -92,10 +92,9 @@ DOMNormalizer.prototype = (function () {
   } else if (div.fireEvent) {
   // Otherwise, if there is an fireEvent handler
     // Override triggerHandler
-    // TODO: Test me
     triggerHandler = function (evtName) {
       var event = DOMNormalizer.makeEvent();
-      this.elt.fireEvent(evtName, event);
+      this.elt.fireEvent('on' + evtName, event);
     };
   }
 
