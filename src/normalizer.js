@@ -14,7 +14,7 @@ function DOMNormalizer(elt) {
  * @param {String} [options.eventType='HTMLEvents'] Type of event to create
  */
 DOMNormalizer.makeEvent = (function () {
-  var createEvent = document.createEvent || document.createEventObject || function () { return {}; };
+  var createEvent = document.createEvent || document.createEventObject || function () { return null; };
   return function (options) {
     // Fallback options
     options = options || {};

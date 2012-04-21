@@ -2,6 +2,23 @@
 var suite = new Skeleton('DOMNormalizer'),
     sandbox = document.getElementById('TESTsandbox');
 
+// Zero-th batch: Core basics
+suite.addBatch({
+  'DOMNormalizer': {
+    topic: function () {
+      return DOMNormalizer;
+    },
+    'can make a standard event (onclick)': function (DOMNormalizer) {
+      var e = DOMNormalizer.makeEvent('click');
+      assert(e);
+    },
+    'can make a non-standard event (onwave)': function (DOMNormalizer) {
+      var e = DOMNormalizer.makeEvent('wave');
+      assert(e);
+    }
+  }
+});
+
 // First batch: Basics
 suite.addBatch({
   'A text input': {
@@ -12,25 +29,25 @@ suite.addBatch({
       topic: function (input) {
         return new DOMNormalizer(input);
       },
-      'can listen to a standard event (onchange) without throwing errors': function ($input) {
+      'can listen to a standard event (onchange)': function ($input) {
         $input.on('change', function () {});
         assert(true);
       },
       // 'and unsubscribe to it': {
         // 'without throwing errors': ''
       // }
-      'can trigger a standard event (onclick) without throwing errors': function ($input) {
+      'can trigger a standard event (onclick)': function ($input) {
         $input.trigger('change', function () {});
         assert(true);
       },
-      'can listen to a non-standard event (onwiggle) without throwing errors': function ($input) {
+      'can listen to a non-standard event (onwiggle)': function ($input) {
         $input.on('wiggle', function () {});
         assert(true);
       },
       // 'and unsubscribe to it': {
         // 'without throwing errors': ''
       // }
-      'can trigger a non-standard event (onwobble) without throwing errors': function ($input) {
+      'can trigger a non-standard event (onwobble)': function ($input) {
         $input.trigger('wiggle', function () {});
         assert(true);
       }
