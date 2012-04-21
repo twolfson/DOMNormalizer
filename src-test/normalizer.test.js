@@ -48,7 +48,7 @@ suite.addBatch({
         // 'without throwing errors': ''
       // }
       'can trigger a non-standard event (onwobble)': function ($input) {
-        $input.trigger('wiggle', function () {});
+        $input.trigger('wobble', function () {});
         assert(true);
       }
     }
@@ -58,15 +58,45 @@ suite.addBatch({
 // Second batch: Intermediate
 suite.addBatch({
   'A text input': {
+    topic: function () {
+      return document.getElementById('TESTinput');
+    },
     'that has been DOMNormalized': {
+      topic: function (input) {
+        return new DOMNormalizer(input);
+      },
       'that is listening for a standard event (onclick)': {
+        topic: function ($input) {
+          $input.on('change', function () {
+            window.testStandard = true;
+          });
+          return $input;
+        },
         'and one occurs': {
-          'then the listener is triggered': ''
+          topic: function ($input) {
+            $input.trigger('change');
+            return $input;
+          },
+          'then the listener is triggered': function () {
+            assert(window.testStandard);
+          }
         }
       },
       'that is listening for a non-standard event (onswizzle)': {
+        topic: function ($input) {
+          $input.on('swizzle', function () {
+            window.testNonStandard = true;
+          });
+          return $input;
+        },
         'and one occurs': {
-          'then the listener is triggered': ''
+          topic: function ($input) {
+            $input.trigger('swizzle');
+            return $input;
+          },
+          'then the listener is triggered': function () {
+            assert(window.testNonStandard);
+          }
         }
       }
     }
