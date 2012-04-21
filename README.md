@@ -1,0 +1,1 @@
+DOMNormalizer is a constructor for normalization of event handling
